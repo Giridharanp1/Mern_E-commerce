@@ -26,34 +26,49 @@ app.get('/', (req, res) => {
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password, name } = req.body
+    
+    if (!email || !password || !name) {
+      return res.status(400).json({ success: false, message: 'All fields are required' })
+    }
+    
     const existingUser = await User.findOne({ email })
     if (existingUser) {
-      return res.json({ success: false, message: 'Email already exists' })
+      return res.status(400).json({ success: false, message: 'Email already exists' })
     }
+    
     const hashedPassword = await bcrypt.hash(password, 10)
-    const user = new User({ email, password: hashedPassword, name })
+    const user = new User({ email, password: hashedPassword, name, cart: [] })
     await user.save()
-    res.json({ success: true })
+    res.json({ success: true, message: 'User registered successfully' })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.error('Registration error:', error)
+    res.status(500).json({ success: false, message: 'Server error during registration' })
   }
 })
 
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body
+    
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Email and password are required' })
+    }
+    
     const user = await User.findOne({ email })
     if (!user) {
-      return res.json({ success: false, message: 'Invalid email or password' })
+      return res.status(400).json({ success: false, message: 'Invalid email or password' })
     }
+    
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
-      return res.json({ success: false, message: 'Invalid email or password' })
+      return res.status(400).json({ success: false, message: 'Invalid email or password' })
     }
+    
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' })
-    res.json({ success: true, token, user: { id: user._id, email: user.email, name: user.name }, cart: user.cart })
+    res.json({ success: true, token, user: { id: user._id, email: user.email, name: user.name }, cart: user.cart || [] })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.error('Login error:', error)
+    res.status(500).json({ success: false, message: 'Server error during login' })
   }
 })
 
@@ -76,20 +91,36 @@ app.post('/api/cart/add', async (req, res) => {
 })
 
 app.post('/api/cart/remove', async (req, res) => {
-  const { userId, productId } = req.body
-  const user = await User.findById(userId)
-  user.cart = user.cart.filter(item => item.productId !== productId)
-  await user.save()
-  res.json(user.cart)
+  try {
+    const { userId, productId } = req.body
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+    user.cart = user.cart.filter(item => item.productId !== productId)
+    await user.save()
+    res.json(user.cart)
+  } catch (error) {
+    console.error('Remove cart error:', error)
+    res.status(500).json({ error: error.message })
+  }
 })
 
 app.post('/api/cart/update', async (req, res) => {
-  const { userId, productId, quantity } = req.body
-  const user = await User.findById(userId)
-  const item = user.cart.find(item => item.productId === productId)
-  if (item) item.quantity = quantity
-  await user.save()
-  res.json(user.cart)
+  try {
+    const { userId, productId, quantity } = req.body
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+    const item = user.cart.find(item => item.productId === productId)
+    if (item) item.quantity = quantity
+    await user.save()
+    res.json(user.cart)
+  } catch (error) {
+    console.error('Update cart error:', error)
+    res.status(500).json({ error: error.message })
+  }
 })
 
 app.post('/api/cart/clear', async (req, res) => {
