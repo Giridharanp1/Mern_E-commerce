@@ -34,31 +34,29 @@ const Cart = ({ items, onClose, onRemove, onUpdateQuantity, user }) => {
           ) : (
             <>
               {items.map(item => (
-                <div key={item.id} className="flex items-center gap-4 py-4 border-b">
-                  <img 
-                    src={item.image} 
-                    alt={item.name}
-                    className="w-16 h-16 object-cover rounded"
-                  />
+                <div key={item.productId} className="flex items-center gap-4 py-4 border-b">
+                  <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+                    📱
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-medium">{item.name}</h3>
                     <p className="text-gray-600">${item.price}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <button 
-                        onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => onUpdateQuantity(item.productId, item.quantity - 1)}
                         className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center"
                       >
                         -
                       </button>
                       <span className="w-8 text-center">{item.quantity}</span>
                       <button 
-                        onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => onUpdateQuantity(item.productId, item.quantity + 1)}
                         className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center"
                       >
                         +
                       </button>
                       <button 
-                        onClick={() => onRemove(item.id)}
+                        onClick={() => onRemove(item.productId)}
                         className="ml-2 text-red-500 hover:text-red-700"
                       >
                         🗑️

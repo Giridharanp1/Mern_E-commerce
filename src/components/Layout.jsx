@@ -3,44 +3,83 @@ import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
 import Cart from './Cart'
+// import { authAPI, cartAPI, productAPI, orderAPI } from '../services/api'
 
 const Layout = () => {
   const [cartItems, setCartItems] = useState([])
   const [showCart, setShowCart] = useState(false)
   const [user, setUser] = useState(null)
 
-  const addToCart = (product) => {
-    setCartItems(prev => {
-      const existing = prev.find(item => item.id === product.id)
-      if (existing) {
-        return prev.map(item => 
-          item.id === product.id 
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
+  const addToCart = async (product) => {
+    if (user) {
+      try {
+        const response = await fetch('http://localhost:3001/api/cart/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, product })
+        })
+        const updatedCart = await response.json()
+        if (updatedCart && !updatedCart.error) {
+          setCartItems(updatedCart)
+        }
+      } catch (error) {
+        console.error('Add to cart error:', error)
       }
-      return [...prev, { ...product, quantity: 1 }]
-    })
+    } else {
+      // Fallback for non-logged users
+      setCartItems(prev => {
+        const existing = prev.find(item => item.productId === product.id)
+        if (existing) {
+          return prev.map(item => 
+            item.productId === product.id 
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        }
+        return [...prev, { productId: product.id, quantity: 1, name: product.name, price: product.price }]
+      })
+    }
   }
 
-  const removeFromCart = (id) => {
-    setCartItems(prev => prev.filter(item => item.id !== id))
+  const removeFromCart = async (id) => {
+    if (user) {
+      try {
+        const response = await fetch('http://localhost:3001/api/cart/remove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, productId: id })
+        })
+        const updatedCart = await response.json()
+        setCartItems(updatedCart)
+      } catch (error) {
+        console.error('Remove from cart error:', error)
+      }
+    }
   }
 
-  const updateQuantity = (id, quantity) => {
+  const updateQuantity = async (id, quantity) => {
     if (quantity === 0) {
       removeFromCart(id)
       return
     }
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === id ? { ...item, quantity } : item
-      )
-    )
+    if (user) {
+      try {
+        const response = await fetch('http://localhost:3001/api/cart/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, productId: id, quantity })
+        })
+        const updatedCart = await response.json()
+        setCartItems(updatedCart)
+      } catch (error) {
+        console.error('Update cart error:', error)
+      }
+    }
   }
 
-  const handleLogin = (userData) => {
+  const handleLogin = (userData, cartData) => {
     setUser(userData)
+    setCartItems(cartData || [])
   }
 
   const handleLogout = () => {
@@ -49,8 +88,21 @@ const Layout = () => {
 
   const handleOrderComplete = () => {
     setCartItems([])
-    setShowCart(false)
   }
+
+  // Seed products on component mount
+  // useState(() => {
+  //   const seedProducts = async () => {
+  //     const products = [
+  //       { id: 1, name: "iPhone 15 Pro", price: 999, category: "Smartphones" },
+  //       { id: 2, name: "MacBook Air M2", price: 1199, category: "Laptops" },
+  //       { id: 3, name: "AirPods Pro", price: 249, category: "Audio" },
+  //       { id: 4, name: "iPad Pro", price: 799, category: "Tablets" }
+  //     ]
+  //     await productAPI.seed(products)
+  //   }
+  //   seedProducts()
+  // }, [])
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

@@ -11,10 +11,32 @@ const Auth = () => {
   })
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    handleLogin({ email: formData.email, name: formData.name || formData.email })
-    navigate('/')
+    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register'
+    
+    try {
+      const response = await fetch(`http://localhost:3001${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        if (isLogin) {
+          handleLogin(data.user, data.cart)
+          navigate('/')
+        } else {
+          alert('Registration successful! Please login.')
+          setIsLogin(true)
+        }
+      } else {
+        alert(data.message)
+      }
+    } catch (error) {
+      alert('Error: ' + error.message)
+    }
   }
 
   const handleChange = (e) => {

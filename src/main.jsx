@@ -9,6 +9,8 @@ import About from './pages/About.jsx'
 import Contact from './pages/Contact.jsx'
 import Auth from './pages/Auth.jsx'
 import Checkout from './pages/Checkout.jsx'
+import Admin from './pages/Admin.jsx'
+import Orders from './pages/Orders.jsx'
 
 const router = createBrowserRouter([
   {
@@ -17,10 +19,12 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <Home /> },
       { path: '/products', element: <Products /> },
+      { path: '/orders', element: <Orders /> },
       { path: '/about', element: <About /> },
       { path: '/contact', element: <Contact /> },
       { path: '/auth', element: <Auth /> },
-      { path: '/checkout', element: <Checkout /> }
+      { path: '/checkout', element: <Checkout /> },
+      { path: '/admin', element: <Admin /> }
     ]
   }
 ])

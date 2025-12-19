@@ -15,11 +15,56 @@ const Checkout = () => {
 
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    handleOrderComplete()
-    alert('Order placed successfully!')
-    navigate('/')
+    console.log('Form submitted')
+    console.log('User:', user)
+    console.log('Cart items:', cartItems)
+    
+    if (!user || !cartItems.length) {
+      alert('Please login and add items to cart')
+      return
+    }
+    
+    try {
+      console.log('Sending order request...')
+      const response = await fetch('http://localhost:3001/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          items: cartItems,
+          total,
+          shippingAddress: { address: orderData.address, city: orderData.city, zipCode: orderData.zipCode },
+          paymentInfo: { cardNumber: orderData.cardNumber, expiryDate: orderData.expiryDate }
+        })
+      })
+      const result = await response.json()
+      console.log('Order response:', result)
+      
+      if (result.success) {
+        console.log('Clearing cart...')
+        const clearResponse = await fetch('http://localhost:3001/api/cart/clear', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id })
+        })
+        const clearResult = await clearResponse.json()
+        console.log('Clear cart response:', clearResult)
+        
+        if (clearResult.success) {
+          handleOrderComplete()
+        }
+        alert('Order placed successfully!')
+        navigate('/orders')
+      } else {
+        console.log('Order failed with result:', result)
+        alert('Order failed: ' + (result.message || result.error || 'Unknown error'))
+      }
+    } catch (error) {
+      console.error('Order error:', error)
+      alert('Error placing order: ' + error.message)
+    }
   }
 
   const handleChange = (e) => {
@@ -40,7 +85,7 @@ const Checkout = () => {
           <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
           <div className="bg-white rounded-lg shadow p-4">
             {cartItems.map(item => (
-              <div key={item.id} className="flex justify-between py-2 border-b">
+              <div key={item.productId || item.id} className="flex justify-between py-2 border-b">
                 <span>{item.name} x {item.quantity}</span>
                 <span>${(item.price * item.quantity).toFixed(2)}</span>
               </div>

@@ -7,10 +7,23 @@ const Contact = () => {
     message: ''
   })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    alert('Message sent! We will get back to you soon.')
-    setFormData({ name: '', email: '', message: '' })
+    try {
+      const response = await fetch('http://localhost:3001/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        alert('Message sent! We will get back to you soon.')
+        setFormData({ name: '', email: '', message: '' })
+      }
+    } catch (error) {
+      alert('Error sending message: ' + error.message)
+    }
   }
 
   const handleChange = (e) => {
