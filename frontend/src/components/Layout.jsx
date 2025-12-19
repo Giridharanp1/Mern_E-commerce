@@ -13,7 +13,7 @@ const Layout = () => {
   const addToCart = async (product) => {
     if (user) {
       try {
-        const response = await fetch('http://localhost:3001/api/cart/add', {
+        const response = await fetch('https://mern-e-commerce-2-u41a.onrender.com/api/cart/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id, product })
@@ -44,7 +44,7 @@ const Layout = () => {
   const removeFromCart = async (id) => {
     if (user) {
       try {
-        const response = await fetch('http://localhost:3001/api/cart/remove', {
+        const response = await fetch('https://mern-e-commerce-2-u41a.onrender.com/api/cart/remove', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id, productId: id })
@@ -64,7 +64,7 @@ const Layout = () => {
     }
     if (user) {
       try {
-        const response = await fetch('http://localhost:3001/api/cart/update', {
+        const response = await fetch('https://mern-e-commerce-2-u41a.onrender.com/api/cart/update', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id, productId: id, quantity })

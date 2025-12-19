@@ -28,7 +28,7 @@ const Checkout = () => {
     
     try {
       console.log('Sending order request...')
-      const response = await fetch('http://localhost:3001/api/orders', {
+      const response = await fetch('https://mern-e-commerce-2-u41a.onrender.com/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -44,7 +44,7 @@ const Checkout = () => {
       
       if (result.success) {
         console.log('Clearing cart...')
-        const clearResponse = await fetch('http://localhost:3001/api/cart/clear', {
+        const clearResponse = await fetch('https://mern-e-commerce-2-u41a.onrender.com/api/cart/clear', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id })

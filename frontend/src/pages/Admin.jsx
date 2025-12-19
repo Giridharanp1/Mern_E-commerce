@@ -10,7 +10,7 @@ const Admin = () => {
   const fetchOrders = async () => {
     try {
       console.log('Fetching orders from admin panel...')
-      const res = await fetch('http://localhost:3001/api/orders/all')
+      const res = await fetch('https://mern-e-commerce-2-u41a.onrender.com/api/orders/all')
       const data = await res.json()
       console.log('Raw orders data:', data)
       
@@ -23,7 +23,7 @@ const Admin = () => {
       const ordersWithUsers = await Promise.all(
         data.map(async (order) => {
           try {
-            const userRes = await fetch(`http://localhost:3001/api/users/${order.userId}`)
+            const userRes = await fetch(`https://mern-e-commerce-2-u41a.onrender.com/api/users/${order.userId}`)
             const userData = await userRes.json()
             return { ...order, userEmail: userData.email || 'Unknown' }
           } catch {
@@ -40,7 +40,7 @@ const Admin = () => {
 
   const updateStatus = async (orderId, status) => {
     try {
-      await fetch(`http://localhost:3001/api/orders/${orderId}/status`, {
+      await fetch(`https://mern-e-commerce-2-u41a.onrender.com/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })

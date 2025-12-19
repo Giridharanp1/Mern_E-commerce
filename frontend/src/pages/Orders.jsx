@@ -13,7 +13,7 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch(`http://localhost:3001/api/orders/${user.id}`)
+      const res = await fetch(`https://mern-e-commerce-2-u41a.onrender.com/api/orders/${user.id}`)
       const data = await res.json()
       setOrders(data)
     } catch (error) {

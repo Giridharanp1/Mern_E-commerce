@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+const API_BASE = 'https://mern-e-commerce-2-u41a.onrender.com/api'
 
 export const authAPI = {
   login: async (email, password) => {
