@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
+import 'dotenv/config'
 import User from './User.js'
 import Product from './Product.js'
 import Order from './Order.js'
@@ -12,7 +13,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-mongoose.connect('mongodb://localhost:27017/infinity-store')
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log('MongoDB connection error:', err))
 
@@ -188,4 +189,5 @@ app.post('/api/contact', async (req, res) => {
   }
 })
 
-app.listen(3001, () => console.log('Server running on port 3001'))
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
